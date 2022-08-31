@@ -87,7 +87,7 @@ class WordStatistic:
         elif is_pdf_file(self.file_path):
             return self.statistic_pdf()
         else:
-            raise Exception('File type not supported')
+            raise Exception(f'{self.file_path} File type not supported')
 
     def statistic(self):
         return self.__call__()
@@ -98,8 +98,9 @@ class WordStatistic:
 def main(dir_path: str):
     statistic_all = defaultdict(int)
     file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path)]
-    run_file_paths = [is_docx_file(file_path) or is_pdf_file(file_path) for file_path in file_paths]
+    run_file_paths = [file_path for file_path in file_paths if is_docx_file(file_path) or is_pdf_file(file_path)]
     for file_path in tqdm(run_file_paths):
+        print(file_path)
         statistic_single_file = WordStatistic(file_path).statistic()
         statistic_all = merge_dict(statistic_all, statistic_single_file)
 

@@ -98,10 +98,9 @@ def main(dir_path: str):
     for file_path in tqdm(run_file_paths):
         statistic_single_file = WordStatistic(file_path).statistic()
         statistic_all = merge_dict(statistic_all, statistic_single_file)
-
     # 根据频次排序
     statistic_all = dict(sorted(statistic_all.items(), key=lambda x: x[1], reverse=True))
-
+    # 生成文件
     with open(os.path.join(dir_path, 'word_statistic.txt'), 'w') as f:
         f.write('\n'.join([f'{word}:{frequency}' for word, frequency in statistic_all.items()]))
     print('statistic success')
@@ -110,6 +109,6 @@ def main(dir_path: str):
 if __name__ == '__main__':
     """
     contributor:https://github.com/chenyuzhe97
-    usage：python word_statistic.py dir_path
+    usage:python word_statistic.py dir_path
     """
     main()

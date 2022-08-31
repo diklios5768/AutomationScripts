@@ -61,9 +61,9 @@ class WordStatistic:
         self.file_path = file_path
         self.hash = defaultdict(int)
 
-    def sort_hash(self):
+    def sort_hash_by_word(self):
         #  sort by word
-        self.hash = dict(sorted(self.hash.items(), key=lambda word, frequency: word))
+        self.hash = dict(sorted(self.hash.items(), key=lambda x: x[0]))
         self.hash.pop('')
         return self.hash
 
@@ -80,7 +80,7 @@ class WordStatistic:
         file = docx.Document(self.file_path)
         for page_num in range(len(file.paragraphs)):
             self.count_word(file.paragraphs[page_num].text)
-        return self.sort_hash()
+        return self.sort_hash_by_word()
 
     def statistic_doc(self):
         pass
@@ -89,7 +89,7 @@ class WordStatistic:
         file = PyPDF2.PdfFileReader(open(self.file_path, 'rb'))
         for page_num in range(file.numPages):
             self.count_word(file.getPage(page_num).extractText().strip().replace('\n', ' '))
-        return self.sort_hash()
+        return self.sort_hash_by_word()
 
     def statistic_txt(self):
         pass
@@ -119,7 +119,7 @@ def main(dir_path: str):
         else:
             statistic_all = merge_dict(statistic_all, statistic_one)
     # sort by frequency
-    statistic_all = dict(sorted(statistic_all.items(), key=lambda word, frequency: frequency, reverse=True))
+    statistic_all = dict(sorted(statistic_all.items(), key=lambda x: x[1], reverse=True))
     # generate file
     with open(os.path.join(dir_path, 'word_statistic.txt'), 'w') as f:
         f.write('\n'.join([f'{word}:{frequency}' for word, frequency in statistic_all.items()]))

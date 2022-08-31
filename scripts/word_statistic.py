@@ -40,6 +40,10 @@ def is_pdf_file(file_path: str):
     return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith('.pdf')
 
 
+def is_txt_file(file_path: str):
+    return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith('.txt')
+
+
 def is_need_file(file_path: str):
     return is_docx_file(file_path) or is_pdf_file(file_path)
 
@@ -54,7 +58,7 @@ class WordStatistic:
         self.hash = defaultdict(int)
 
     def sort_hash(self):
-        # 根据字母排序
+        #  sort by word
         self.hash = dict(sorted(self.hash.items(), key=lambda word, frequency: word))
         self.hash.pop('')
         return self.hash
@@ -68,11 +72,14 @@ class WordStatistic:
                 self.hash[word] += 1
                 word = ''
 
-    def statistic_doc(self):
+    def statistic_docx(self):
         file = docx.Document(self.file_path)
         for page_num in range(len(file.paragraphs)):
             self.count_word(file.paragraphs[page_num].text)
         return self.sort_hash()
+
+    def statistic_doc(self):
+        pass
 
     def statistic_pdf(self):
         file = PyPDF2.PdfFileReader(open(self.file_path, 'rb'))
@@ -80,9 +87,12 @@ class WordStatistic:
             self.count_word(file.getPage(page_num).extractText().strip().replace('\n', ' '))
         return self.sort_hash()
 
+    def statistic_txt(self):
+        pass
+
     def statistic(self):
         if is_docx_file(self.file_path):
-            return self.statistic_doc()
+            return self.statistic_docx()
         elif is_pdf_file(self.file_path):
             return self.statistic_pdf()
         else:
@@ -104,9 +114,9 @@ def main(dir_path: str):
             print(e)
         else:
             statistic_all = merge_dict(statistic_all, statistic_one)
-    # 根据频次排序
+    # sort by frequency
     statistic_all = dict(sorted(statistic_all.items(), key=lambda word, frequency: frequency, reverse=True))
-    # 生成文件
+    # generate file
     with open(os.path.join(dir_path, 'word_statistic.txt'), 'w') as f:
         f.write('\n'.join([f'{word}:{frequency}' for word, frequency in statistic_all.items()]))
     print('statistic success')
@@ -116,5 +126,7 @@ if __name__ == '__main__':
     """
     contributor:https://github.com/chenyuzhe97
     usage:python word_statistic.py dir_path
+    
+    todo:doc,txt file support
     """
     main()

@@ -40,12 +40,20 @@ def is_pdf_file(file_path: str):
     return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith('.pdf')
 
 
+def is_need_file(file_path: str):
+    return is_docx_file(file_path) or is_pdf_file(file_path)
+
+
+def is_word_character(character: str):
+    return 'a' <= character <= 'z' or 'A' <= character <= 'Z' or character == '-'
+
+
 class WordStatistic:
     def __init__(self, file_path: str):
         self.file_path = file_path
         self.hash = defaultdict(int)
 
-    def sort_word(self):
+    def sort_hash(self):
         # 根据字母排序
         self.hash = dict(sorted(self.hash.items(), key=lambda x: x[0]))
         self.hash.pop('')
@@ -54,30 +62,25 @@ class WordStatistic:
     def count_word(self, text: str):
         word = ''
         for character in text:
-            if 'a' <= character <= 'z' or 'A' <= character <= 'Z' or character == '-':
-                character = character.lower()
-                word += character
+            if is_word_character(character):
+                word += character.lower()
             else:
                 self.hash[word] += 1
                 word = ''
 
     def statistic_doc(self):
         file = docx.Document(self.file_path)
-        for i in range(len(file.paragraphs)):
-            self.count_word(file.paragraphs[i].text)
-        return self.sort_word()
+        for page_num in range(len(file.paragraphs)):
+            self.count_word(file.paragraphs[page_num].text)
+        return self.sort_hash()
 
     def statistic_pdf(self):
         file = PyPDF2.PdfFileReader(open(self.file_path, 'rb'))
         for page_num in range(file.numPages):
-            # extracting text from the PDF
-            text = file.getPage(page_num).extractText()
-            # Removes unnecessary spaces and break lines
-            cleaned_text = text.strip().replace('\n', ' ')
-            self.count_word(cleaned_text)
-        return self.sort_word()
+            self.count_word(file.getPage(page_num).extractText().strip().replace('\n', ' '))
+        return self.sort_hash()
 
-    def __call__(self):
+    def statistic(self):
         if is_docx_file(self.file_path):
             return self.statistic_doc()
         elif is_pdf_file(self.file_path):
@@ -85,8 +88,8 @@ class WordStatistic:
         else:
             raise Exception(f'{self.file_path} File type not supported')
 
-    def statistic(self):
-        return self.__call__()
+    def __call__(self):
+        return self.statistic()
 
 
 @click.command()
@@ -94,10 +97,8 @@ class WordStatistic:
 def main(dir_path: str):
     statistic_all = defaultdict(int)
     file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path)]
-    run_file_paths = [file_path for file_path in file_paths if is_docx_file(file_path) or is_pdf_file(file_path)]
-    for file_path in tqdm(run_file_paths):
-        statistic_single_file = WordStatistic(file_path).statistic()
-        statistic_all = merge_dict(statistic_all, statistic_single_file)
+    for file_path in tqdm([file_path for file_path in file_paths if is_need_file(file_path)]):
+        statistic_all = merge_dict(statistic_all, WordStatistic(file_path).statistic())
     # 根据频次排序
     statistic_all = dict(sorted(statistic_all.items(), key=lambda x: x[1], reverse=True))
     # 生成文件

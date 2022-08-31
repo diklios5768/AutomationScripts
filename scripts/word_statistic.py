@@ -97,12 +97,11 @@ class WordStatistic:
 @click.argument('dir_path', type=click.Path(exists=True))
 def main(dir_path: str):
     statistic_all = defaultdict(int)
-
-    for file_name in tqdm(os.listdir(dir_path)):
-        file_path = os.path.join(dir_path, file_name)
-        if is_docx_file(file_path) or is_pdf_file(file_path):
-            statistic_single_file = WordStatistic(file_path).statistic()
-            statistic_all = merge_dict(statistic_all, statistic_single_file)
+    file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path)]
+    run_file_paths = [is_docx_file(file_path) or is_pdf_file(file_path) for file_path in file_paths]
+    for file_path in tqdm(run_file_paths):
+        statistic_single_file = WordStatistic(file_path).statistic()
+        statistic_all = merge_dict(statistic_all, statistic_single_file)
 
     # 根据频次排序
     statistic_all = dict(sorted(statistic_all.items(), key=lambda x: x[1], reverse=True))

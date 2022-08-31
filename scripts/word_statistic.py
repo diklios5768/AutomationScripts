@@ -46,22 +46,25 @@ class WordStatistic:
         self.hash = defaultdict(int)
 
     def sort_word(self):
+        # 根据字母排序
         self.hash = dict(sorted(self.hash.items(), key=lambda x: x[0]))
         self.hash.pop('')
         return self.hash
 
+    def count_word(self, text: str):
+        word = ''
+        for character in text:
+            if 'a' <= character <= 'z' or 'A' <= character <= 'Z' or character == '-':
+                character = character.lower()
+                word += character
+            else:
+                self.hash[word] += 1
+                word = ''
+
     def statistic_doc(self):
         file = docx.Document(self.file_path)
-        word = ''
         for i in range(len(file.paragraphs)):
-            for character in file.paragraphs[i].text:
-                if 'a' <= character <= 'z' or 'A' <= character <= 'Z' or character == '-':
-                    character = character.lower()
-                    word += character
-                else:
-                    self.hash[word] += 1
-                    word = ''
-
+            self.count_word(file.paragraphs[i].text)
         return self.sort_word()
 
     def statistic_pdf(self):
@@ -71,14 +74,7 @@ class WordStatistic:
             text = file.getPage(page_num).extractText()
             # Removes unnecessary spaces and break lines
             cleaned_text = text.strip().replace('\n', ' ')
-            word = ''
-            for character in cleaned_text:
-                if 'a' <= character <= 'z' or 'A' <= character <= 'Z' or character == '-':
-                    character = character.lower()
-                    word += character
-                else:
-                    self.hash[word] += 1
-                    word = ''
+            self.count_word(cleaned_text)
         return self.sort_word()
 
     def __call__(self):

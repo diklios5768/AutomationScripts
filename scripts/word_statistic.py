@@ -28,20 +28,24 @@ def merge_dict(x: defaultdict, y: dict):
     return x
 
 
+def is_file_type(file_path: str, file_type: str):
+    return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith(file_type)
+
+
 def is_docx_file(file_path: str):
-    return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith('.docx')
+    return is_file_type(file_path, '.docx')
 
 
 def is_doc_file(file_path: str):
-    return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith('.doc')
+    return is_file_type(file_path, '.doc')
 
 
 def is_pdf_file(file_path: str):
-    return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith('.pdf')
+    return is_file_type(file_path, '.pdf')
 
 
 def is_txt_file(file_path: str):
-    return os.path.isfile(file_path) and '~$' not in file_path and file_path.endswith('.txt')
+    return is_file_type(file_path, '.txt')
 
 
 def is_need_file(file_path: str):

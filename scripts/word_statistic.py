@@ -55,7 +55,7 @@ class WordStatistic:
 
     def sort_hash(self):
         # 根据字母排序
-        self.hash = dict(sorted(self.hash.items(), key=lambda x: x[0]))
+        self.hash = dict(sorted(self.hash.items(), key=lambda word, frequency: word))
         self.hash.pop('')
         return self.hash
 
@@ -86,7 +86,7 @@ class WordStatistic:
         elif is_pdf_file(self.file_path):
             return self.statistic_pdf()
         else:
-            raise Exception(f'{self.file_path} File type not supported')
+            raise Exception(f'{self.file_path} file type not supported!')
 
     def __call__(self):
         return self.statistic()
@@ -98,9 +98,14 @@ def main(dir_path: str):
     statistic_all = defaultdict(int)
     file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path)]
     for file_path in tqdm([file_path for file_path in file_paths if is_need_file(file_path)]):
-        statistic_all = merge_dict(statistic_all, WordStatistic(file_path).statistic())
+        try:
+            statistic_one = WordStatistic(file_path).statistic()
+        except Exception as e:
+            print(e)
+        else:
+            statistic_all = merge_dict(statistic_all, statistic_one)
     # 根据频次排序
-    statistic_all = dict(sorted(statistic_all.items(), key=lambda x: x[1], reverse=True))
+    statistic_all = dict(sorted(statistic_all.items(), key=lambda word, frequency: frequency, reverse=True))
     # 生成文件
     with open(os.path.join(dir_path, 'word_statistic.txt'), 'w') as f:
         f.write('\n'.join([f'{word}:{frequency}' for word, frequency in statistic_all.items()]))

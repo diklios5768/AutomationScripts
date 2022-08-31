@@ -100,7 +100,6 @@ def main(dir_path: str):
     file_paths = [os.path.join(dir_path, file_name) for file_name in os.listdir(dir_path)]
     run_file_paths = [file_path for file_path in file_paths if is_docx_file(file_path) or is_pdf_file(file_path)]
     for file_path in tqdm(run_file_paths):
-        print(file_path)
         statistic_single_file = WordStatistic(file_path).statistic()
         statistic_all = merge_dict(statistic_all, statistic_single_file)
 
@@ -113,5 +112,8 @@ def main(dir_path: str):
 
 
 if __name__ == '__main__':
-    # contributor:https://github.com/chenyuzhe97
+    """
+    contributor:https://github.com/chenyuzhe97
+    usage：python word_statistic.py dir_path
+    """
     main()

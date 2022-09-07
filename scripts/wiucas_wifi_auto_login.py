@@ -14,7 +14,6 @@
 __auth__ = 'diklios'
 
 import click
-# 请测试完毕后删除所有代码
 import requests
 
 base_url = 'http://192.168.200.251:8008'
@@ -29,7 +28,6 @@ def main(username, password):
     login_page = requests.post(login_page_url, data={
         'submit': 'submit'
     })
-    print(login_page.text)
     code = login_page.json()['code']
     print(f'code:{code}')
     data = {
@@ -40,11 +38,14 @@ def main(username, password):
         'code': code,
         'submit': 'submit'
     }
-    print(f'data:{data}')
     login = requests.post(login_url, data=data)
     login.encoding = 'utf-8'
     print(login.text)
 
 
 if __name__ == '__main__':
+    """
+    usage: python wiucas_wifi_auto_login.py username password
+    if have special character in password, use '' to wrap it
+    """
     main()
